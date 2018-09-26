@@ -9,11 +9,11 @@ import os
 class protocol:
     # create a handle for the serial port and initialize variables
     ser = serial.Serial()
-    datatype = 0
-    dataarray = []
+    data_type = 0
+    data_array = []
 
     def __init__(self):
-        #initialiseer systeem
+        # Initialise the serial connection
         self.ser.baudrate = 9600
         self.ser.timeout = 0.05
         self.ser.port = "/dev/ttyAMA0"
@@ -25,43 +25,45 @@ class protocol:
 
     def transmit(self, type, data):
         if self.ser.is_open:
-            #vul checkvalue met data
+            # Create checksum
             check = 85 + type + len(data)
-            #vul array met data
-            sendarray = []
-            sendarray += chr(85)
-            sendarray += chr(len(data))
-            sendarray += chr(type)
+            # Fill array with data
+            send_array = []
+            # preamble
+            send_array += chr(85)
+            # Data length
+            send_array += chr(len(data))
+            # Data type
+            send_array += chr(type)
             for d in data:
-                sendarray += chr(d)
+                send_array += chr(d)
                 check += d
             check = ~check
-            sendarray += chr(check % 0xFF)
-            #verzend data
-            self.ser.write(sendarray)
+            send_array += chr(check % 0xFF)
+            # Sent data
+            self.ser.write(send_array)
             return True
         else:
             return False
 
     def receive(self):
         try:
-            #leeg data array
+            # Empty data array
             del self.dataarray[:]
-            #controleer of startbyte in orde is
-            startbyte = self.ser.read()
-            if ord(startbyte) == 85:
-                #lees datalengte
+            # Check if startbyte is received
+            start_byte = self.ser.read()
+            if ord(start_byte) == 85:
+                # Read data length
                 length = ord(self.ser.read())
-                #lees datatype
-                self.datatype = ord(self.ser.read())
-                #lees alle data
+                # Read data type
+                self.data_type = ord(self.ser.read())
+                # Read all data
                 for i in range(0, length):
-                    self.dataarray += self.ser.read()
-                #lees de checkbyte
+                    self.data_array += self.ser.read()
+                # Read checksum
                 check = ord(self.ser.read())
                 return True
             else:
-                self.ser.flushInput()
                 return False
         except Exception as eee:
             return False
@@ -70,51 +72,71 @@ class protocol:
     def close(self):
         self.ser.close()
 		
+
+data_array_last = [0, 0, 0, 0, 0, 0]
+data_array = [0, 0, 0, 0, 0, 0]
+
+def prot_to_hand_data(panel, trigger):
+    print str(panel)+" "+str(trigger)
+    if data_array[panel] > trigger:
+        if data_array_last[panel] > trigger:
+            data_array_last[panel] = data_array[panel]
+            return 0
+        if data_array_last[panel] <= trigger:
+            data_array_last[panel] = data_array[panel]
+            return 1
+    if data_array[panel] <= trigger:
+        if data_array_last[panel] > trigger:
+            data_array_last[panel] = data_array[panel]
+            return -1
+        if data_array_last[panel] <= trigger:
+            data_array_last[panel] = data_array[panel]
+            return 0
+
 		
 def MusicFunction(*args):
-	switchBool = False
-	oldvalue = 0
 	while True:
 	    if ProtHandle.receive():
             if ProtHandle.datatype == 11:
-                #data omvormen
-                integerValue = int(ord(ProtHandle.dataarray[0]))
-                if integerValue == 51:
-                    #Verander instrument als de vier buitenste panelen aan staan
-                    switchBool = not(switchBool)
-                else:
-                    #filter alle panelen die al aanstaan er uit
-                    andvalue = oldvalue & integerValue
-                    andvalue = ~andvalue
-                    integerValue &= andvalue
-                    #speel muziek af aan de hand van ontvangen waarde en gekozen instrument
-                    if switchBool == False:
-                        if integerValue & 1:
-                            soundChannelA.play(sndPa)
-                        if integerValue & 2:
-                            soundChannelB.play(sndPb)
-                        if integerValue & 4:
-                            soundChannelC.play(sndPc)
-                        if integerValue & 8:
-                            soundChannelD.play(sndPd)
-                        if integerValue & 16:
-                            soundChannelE.play(sndPe)
-                        if integerValue & 32:
-                            soundChannelF.play(sndPf)
-                    else:
-                        if integerValue & 1:
-                            soundChannelA.play(sndDa)
-                        if integerValue & 2:
-                            soundChannelB.play(sndDb)
-                        if integerValue & 4:
-                            soundChannelC.play(sndDc)
-                        if integerValue & 8:
-                            soundChannelD.play(sndDd)
-                        if integerValue & 16:
-                            soundChannelE.play(sndDe)
-                        if integerValue & 32:
-                            soundChannelF.play(sndDf)
-                oldvalue = integerValue;
+                # Read data
+                data_array[0] = ProtHandle.dataarray[0]
+                data_array[1] = ProtHandle.dataarray[1]
+                data_array[2] = ProtHandle.dataarray[2]
+                data_array[3] = ProtHandle.dataarray[3]
+                data_array[4] = ProtHandle.dataarray[4]
+                data_array[5] = ProtHandle.dataarray[5]
+                # check data and play or stop sounds per panel
+                val = prot_to_hand_data(0, 100)
+                if val == 1:
+                    soundChannelA.play(sndPa)
+                if val == -1:
+                    soundChannelA.stop(sndPa)
+                val = prot_to_hand_data(1, 100)
+                if val == 1:
+                    soundChannelA.play(sndPb)
+                if val == -1:
+                    soundChannelA.stop(sndPb)
+                val = prot_to_hand_data(2, 100)
+                if val == 1:
+                    soundChannelA.play(sndPc)
+                if val == -1:
+                    soundChannelA.stop(sndPc)
+                val = prot_to_hand_data(3, 100)
+                if val == 1:
+                    soundChannelA.play(sndPd)
+                if val == -1:
+                    soundChannelA.stop(sndPd)
+                val = prot_to_hand_data(4, 100)
+                if val == 1:
+                    soundChannelA.play(sndPe)
+                if val == -1:
+                    soundChannelA.stop(sndPe)
+                val = prot_to_hand_data(5, 100)
+                if val == 1:
+                    soundChannelA.play(sndPf)
+                if val == -1:
+                    soundChannelA.stop(sndPf)
+
 				
 def Metronome(*args):
     while True:
