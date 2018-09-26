@@ -105,37 +105,25 @@ def MusicFunction(*args):
                 data_array[3] = ProtHandle.dataarray[3]
                 data_array[4] = ProtHandle.dataarray[4]
                 data_array[5] = ProtHandle.dataarray[5]
-                # check data and play or stop sounds per panel
+                # check data and play sounds per panel
                 val = prot_to_hand_data(0, 100)
                 if val == 1:
                     soundChannelA.play(sndPa)
-                if val == -1:
-                    soundChannelA.stop(sndPa)
                 val = prot_to_hand_data(1, 100)
                 if val == 1:
                     soundChannelB.play(sndPb)
-                if val == -1:
-                    soundChannelB.stop(sndPb)
                 val = prot_to_hand_data(2, 100)
                 if val == 1:
                     soundChannelC.play(sndPc)
-                if val == -1:
-                    soundChannelC.stop(sndPc)
                 val = prot_to_hand_data(3, 100)
                 if val == 1:
                     soundChannelD.play(sndPd)
-                if val == -1:
-                    soundChannelD.stop(sndPd)
                 val = prot_to_hand_data(4, 100)
                 if val == 1:
                     soundChannelE.play(sndPe)
-                if val == -1:
-                    soundChannelE.stop(sndPe)
                 val = prot_to_hand_data(5, 100)
                 if val == 1:
                     soundChannelF.play(sndPf)
-                if val == -1:
-                    soundChannelF.stop(sndPf)
 
 				
 def Metronome(*args):
