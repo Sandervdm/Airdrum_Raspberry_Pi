@@ -113,29 +113,29 @@ def MusicFunction(*args):
                     soundChannelA.stop(sndPa)
                 val = prot_to_hand_data(1, 100)
                 if val == 1:
-                    soundChannelA.play(sndPb)
+                    soundChannelB.play(sndPb)
                 if val == -1:
-                    soundChannelA.stop(sndPb)
+                    soundChannelB.stop(sndPb)
                 val = prot_to_hand_data(2, 100)
                 if val == 1:
-                    soundChannelA.play(sndPc)
+                    soundChannelC.play(sndPc)
                 if val == -1:
-                    soundChannelA.stop(sndPc)
+                    soundChannelC.stop(sndPc)
                 val = prot_to_hand_data(3, 100)
                 if val == 1:
-                    soundChannelA.play(sndPd)
+                    soundChannelD.play(sndPd)
                 if val == -1:
-                    soundChannelA.stop(sndPd)
+                    soundChannelD.stop(sndPd)
                 val = prot_to_hand_data(4, 100)
                 if val == 1:
-                    soundChannelA.play(sndPe)
+                    soundChannelE.play(sndPe)
                 if val == -1:
-                    soundChannelA.stop(sndPe)
+                    soundChannelE.stop(sndPe)
                 val = prot_to_hand_data(5, 100)
                 if val == 1:
-                    soundChannelA.play(sndPf)
+                    soundChannelF.play(sndPf)
                 if val == -1:
-                    soundChannelA.stop(sndPf)
+                    soundChannelF.stop(sndPf)
 
 				
 def Metronome(*args):
@@ -143,25 +143,28 @@ def Metronome(*args):
         time.sleep(0.6)
         soundChannelG.play(sndMet)
 	
-	
-#protocol example
-#ProtHandle = protocol()
-#senddata = [0,0,255,100,0,0,255,100,0,0,255,100,0,0,255,100,0,0,255,100]
-#ProtHandle.transmit(10, senddata)
 
+
+# get protocol handle
 ProtHandle = protocol()
+# initialization data for leds
+led_color_data = [0,0,255,100,0,0,255,100,0,0,255,100,0,0,255,100,0,0,255,100]
+ProtHandle.transmit(10, led_color_data)
 
+# init pygame mixer
 pygame.mixer.pre_init(44100, 16, 2, 4096)
 pygame.mixer.init()
 pygame.init()
+
+# create channels
 soundChannelA = pygame.mixer.Channel(1)
 soundChannelB = pygame.mixer.Channel(2)
 soundChannelC = pygame.mixer.Channel(3)
 soundChannelD = pygame.mixer.Channel(4)
 soundChannelE = pygame.mixer.Channel(5)
 soundChannelF = pygame.mixer.Channel(6)
-soundChannelG = pygame.mixer.Channel(7)
 
+# Create sound handles
 sndPa = pygame.mixer.Sound("sounds/piano/a.wav")
 sndPb = pygame.mixer.Sound("sounds/piano/b.wav")
 sndPc = pygame.mixer.Sound("sounds/piano/c.wav")
